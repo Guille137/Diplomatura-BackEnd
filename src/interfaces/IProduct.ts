@@ -1,10 +1,12 @@
+// Archivo: src/interfaces/IProduct.ts
+
 interface IProduct {
-  name: string,
-  description: string,
-  stock: number,
-  category: string
-  price: number,
-  image?: string
+  nombre: string, // Cambiado de 'name' a 'nombre'
+  descripcion: string, // Cambiado de 'description' a 'descripcion'
+  stock: number,
+  categoria: string // Cambiado de 'category' a 'categoria'
+  precio: number, // Cambiado de 'price' a 'precio'
+  image?: string // Opcional
 }
 
 export default IProduct

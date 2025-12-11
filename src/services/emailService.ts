@@ -1,28 +1,49 @@
-import { Request, Response } from "express"
-import transporter from "../config/emailConfig"
-import createTemplate from "../templates/emailTemplate"
+// Archivo: src/services/emailService.ts
 
-const emailService = async (req: Request, res: Response) => {
-  const { subject, email: emailUser, message } = req.body
+import { Request, Response } from 'express';
+import nodemailer from 'nodemailer';
+import 'dotenv/config'; // Asegura que las variables de entorno estén cargadas
 
-  if (!subject || !emailUser || !message) {
-    return res.status(400).json({ success: false, message: "Data invalida" })
-  }
+// 1. Configuración del transportador (usando las variables del .env)
+const transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: Number(process.env.EMAIL_PORT),
+    secure: false, // true para 465, false para otros puertos como 587
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
 
-  try {
-    const info = await transporter.sendMail({
-      from: `Mensaje de la tienda: ${emailUser}`,
-      to: process.env.EMAIL_USER,
-      subject,
-      html: createTemplate(emailUser, message)
-    })
+// 2. Función Middleware para enviar correo (ruta /email/send)
+const emailService = async (req: Request, res: Response): Promise<void | Response> => {
+    try {
+        // Los datos del correo vienen del cuerpo de la petición
+        const { to, subject, html } = req.body;
 
-    res.json({ succes: true, message: "Correo fue enviado exitosamente", info })
+        if (!to || !subject || !html) {
+            return res.status(400).json({ success: false, error: 'Faltan campos requeridos: to, subject, html' });
+        }
 
-  } catch (e) {
-    const error = e as Error
-    res.status(500).json({ success: false, error: error.message })
-  }
-}
+        const mailOptions = {
+            from: process.env.EMAIL_USER, // Remitente
+            to: to, // Destinatario (ej: 'test@example.com')
+            subject: subject, // Asunto
+            html: html, // Contenido HTML del correo
+        };
 
-export default emailService
+        // 3. Envío del correo
+        const info = await transporter.sendMail(mailOptions);
+        
+        console.log("Mensaje enviado: %s", info.messageId);
+        
+        res.json({ success: true, message: 'Correo enviado correctamente', messageId: info.messageId });
+    } catch (e) {
+        const error = e as Error;
+        console.error("Error al enviar correo:", error.message);
+        res.status(500).json({ success: false, error: 'Error al enviar el correo.', details: error.message });
+    }
+};
+
+// 4. Exportar el servicio (puede ser llamado desde otros controladores, como el de Auth)
+export default emailService;

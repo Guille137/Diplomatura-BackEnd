@@ -1,3 +1,4 @@
+// Archivo: src/index.ts
 // LEVANTAR NUESTRO SERIVICIO Y CONFIGURACIONES GLOBALES
 import express, { Request, Response } from "express"
 import cors from "cors"
@@ -12,14 +13,15 @@ import path from "node:path"
 import fs from "node:fs"
 import emailService from "./services/emailService"
 
-dotenv.config()
+// Configuracion dotenv para leer .env (Punto 8)
+dotenv.config() 
 
 declare global {
-  namespace Express {
-    interface Request {
-      user?: IUserTokenPayload
-    }
-  }
+  namespace Express {
+    interface Request {
+      user?: IUserTokenPayload
+    }
+  }
 }
 
 const PORT = process.env.PORT || 3000
@@ -32,31 +34,32 @@ app.use(logger)
 const uploadsPath = path.join(__dirname, "../uploads")
 
 if (!fs.existsSync(uploadsPath)) {
-  fs.mkdirSync(uploadsPath, { recursive: true })
+  fs.mkdirSync(uploadsPath, { recursive: true })
 }
 
 app.use("/uploads", express.static(uploadsPath))
 
-app.use(morgan("dev"))
+// Configuración del Logger (Morgan) (Punto 3)
+app.use(morgan("dev")) 
 
 app.get("/", (__: Request, res: Response) => {
-  res.json({ status: true })
+  res.json({ status: true })
 })
 
 app.use("/auth", authRouter)
-// http://localhost:3000/products?
-app.use("/products", productRouter)
+// Ruta principal de productos (Punto 1: MVC)
+app.use("/products", productRouter) 
 
 // enviar correo electrónico
 app.post("/email/send", emailService)
 
 // endpoint para el 404 - no se encuentra el recurso
 app.use((__, res) => {
-  res.status(404).json({ success: false, error: "El recurso no se encuentra" })
+  res.status(404).json({ success: false, error: "El recurso no se encuentra" })
 })
 
 // servidor en escucha
 app.listen(PORT, () => {
-  console.log(`✅ Servidor en escucha en el puerto http://localhost:${PORT}`)
-  connectDB()
+  console.log(`✅ Servidor en escucha en el puerto http://localhost:${PORT}`)
+  connectDB()
 })

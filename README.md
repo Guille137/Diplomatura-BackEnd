@@ -80,3 +80,10 @@ EMAIL_USER="redguille@gmail.com"
 EMAIL_PASS="bkkygstylkawpywl"
 EMAIL_HOST="smtp.gmail.com"
 EMAIL_PORT=587
+
+Scripts de Ejecución
+
+1.- npm install: Instalar dependencias
+2.- npm run dev: Ejecturar en desarrollo
+3.- npm run buil: Compilar a JavaScript
+4.- npm run star: Ejecutar en produccion
